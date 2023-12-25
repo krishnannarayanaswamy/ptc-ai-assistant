@@ -1,4 +1,4 @@
-from langchain.document_loaders.base import Document
+from langchain.docstore.document import Document
 from langchain.utilities import ApifyWrapper
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import AstraDB
@@ -16,15 +16,15 @@ openai_api_key=os.environ["OPENAI_API_KEY"]
 
 vstore = AstraDB(
     embedding=OpenAIEmbeddings(),
-    collection_name="ptc_inventory",
+    collection_name="ptc_new_inventory",
     api_endpoint=api_endpoint,
     token=token,
 )
 
-filename = 'Inventory.csv'
+filename = 'Product_Website_Load.csv'
 df = pd.read_csv(filename)
 llmtexts = []
-start = 4000
+start = 2000
 batch_size = 1000
 docs = []
 for i in range(start, start+batch_size, batch_size):
@@ -32,8 +32,8 @@ for i in range(start, start+batch_size, batch_size):
     batch = df[i:i+batch_size]
     batch = batch.fillna('')
     for id, row in batch.iterrows():
-        rawtext = f"Item Code: {row['item_code']} Item Name: {row['item_name']} Description: {row['description']} Available: {row['availability']} Available: {row['availability']} Price: {row['price']} "
-        print(row['item_code'])
+        rawtext = f"Item SKU: {row['item_sku']} Item Name: {row['item_name']} Short Description: {row['short_description']} Description: {row['description']} Brand: {row['brand']} Price: {row['unit_price']} Category: {row['category']} "
+        print(row['item_sku'])
         #translated_text = translate_lang(rawtext)
         llmtexts.append(rawtext)
         doc = Document(page_content=rawtext, metadata=row.to_dict())

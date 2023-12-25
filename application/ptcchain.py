@@ -69,7 +69,7 @@ vectorstore = Cassandra(
     embedding=OpenAIEmbeddings(),
     session=check_resolve_session(None),
     keyspace=check_resolve_keyspace(None),
-    table_name='ptc_inventory',
+    table_name='ptc_new_inventory',
 )
 retriever = vectorstore.as_retriever()
 

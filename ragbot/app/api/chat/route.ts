@@ -16,7 +16,27 @@ export async function POST(req: Request) {
 
     let docContext = '';
     if (useRag) {
-      const {data} = await openai.embeddings.create({input: latestMessage, model: 'text-embedding-ada-002'});
+      
+      const translatePrompt = [
+        {
+          role: 'system',
+          content: `Translate to English, if the input is not english. If the input is English, just return the english query back unaltered".
+          `,
+        },
+      ]
+      
+      const completiondata = await openai.chat.completions.create(
+        {
+          model: 'gpt-4',
+          messages: [...translatePrompt, ...messages],
+        }
+      );
+
+      const datatranslated = completiondata.choices[0]?.message?.content;
+
+      console.log(datatranslated);
+
+      const {data} = await openai.embeddings.create({input: datatranslated, model: 'text-embedding-ada-002'});
 
       const collection = await astraDb.collection(`ptc_inventory`);
 
@@ -35,10 +55,13 @@ export async function POST(req: Request) {
         END CONTEXT
       `
     }
+
+    console.log(docContext);
+
     const ragPrompt = [
       {
         role: 'system',
-        content: `You are an AI assistant assisting customers to pick electronic products sold by PTC Computer in Cambodia. Include the product description when responding with the list of product recommendation. Answer question based on the context information which is extracted from their webpage. Format responses using markdown where applicable.All the responses should be the same language as the user used.
+        content: `You are an AI assistant assisting customers to pick electronic products sold by PTC Computer in Cambodia. Include the product description when responding with the list of product recommendation. Answer question based on the context information which is extracted from their webpage. Format responses using markdown where applicable. All the responses should be the same language as the user used. Convert the context data to Khmer, if user query is in Khmer.
         ${docContext} 
         If the answer is not provided in the context, the AI assistant will say, "I'm sorry, I don't know the answer".
         `,

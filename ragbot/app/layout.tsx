@@ -2,8 +2,8 @@ import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 
 export const metadata = {
-  title: "PTC AI Assistant",
-  description: "PTC AI Assistant - Powered by AI with DataStax",
+  title: "AI Assistant",
+  description: "AI Assistant - Powered by AI with DataStax",
 };
 
 export default function RootLayout({ children }) {
